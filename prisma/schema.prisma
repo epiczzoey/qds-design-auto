@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/**
+ * Generation 모델
+ * - v0.dev API로 생성된 컴포넌트 정보 저장
+ * - status: ready(대기), pending(생성중), completed(완료), failed(실패)
+ */
+model Generation {
+  id             String   @id @default(cuid())
+  prompt         String
+  style          String?  // 스타일 프리셋 (nullable)
+  code           String   // React .tsx code
+  css            String?  // Generated Tailwind CSS (서버 사이드 생성)
+  status         String   @default("ready") // ready, pending, completed, failed
+  screenshot_url String?  // 스크린샷 URL
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  
+  // Relations
+  assets         Asset[]  // 연관된 에셋들
+}
+
+/**
+ * Asset 모델
+ * - Generation에 연관된 파일/리소스 관리
+ * - kind: code(코드), screenshot(스크린샷), thumbnail(썸네일) 등
+ */
+model Asset {
+  id           String   @id @default(cuid())
+  generationId String
+  kind         String   // code, screenshot, thumbnail, etc.
+  path         String   // 파일 경로 또는 URL
+  created_at   DateTime @default(now())
+  
+  // Relations
+  generation   Generation @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  
+  @@index([generationId])
+}
