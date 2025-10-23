@@ -496,7 +496,7 @@ export default function Home() {
                         <div className="pt-12 pb-20" style={{ height: "100%" }}>
                           <DynamicPreview 
                             code={currentGeneration.code} 
-                            css={currentGeneration.css}
+                            css={currentGeneration.css || undefined}
                             className="w-full h-full overflow-auto" 
                           />
                         </div>
